@@ -1,0 +1,9 @@
+# Imagen base fija e inmutable (P2, RF1, D1): no parametrizar, no cambiar el tag.
+FROM nginx:1.31.7-alpine3.24
+
+# Entrypoint propio (RF3, D3).
+COPY docker/entrypoint.01-nginx.sh /usr/local/bin/entrypoint.01-nginx.sh
+RUN chmod +x /usr/local/bin/entrypoint.01-nginx.sh
+
+ENTRYPOINT ["/usr/local/bin/entrypoint.01-nginx.sh"]
+CMD ["nginx", "-g", "daemon off;"]

@@ -1,0 +1,18 @@
+# Servicio único nginx (D2, D5, D6). Sin servicios extra ni paquetes (P5).
+services:
+  nginx:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.01-nginx
+    image: nginx-sdd:01
+    environment:
+      APP_MESSAGE: ${APP_MESSAGE:?definir APP_MESSAGE en .env}
+    ports:
+      - "${NGINX_HOST_PORT}:80"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1/"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+    restart: unless-stopped
