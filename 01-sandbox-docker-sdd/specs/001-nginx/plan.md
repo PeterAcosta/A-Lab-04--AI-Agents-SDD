@@ -12,6 +12,9 @@
 - **D5. Healthcheck.** `wget -q -O /dev/null http://127.0.0.1/` (wget viene en Alpine/busybox; no se instala nada, P5).
 - **D6. Compose explícito.** Un solo servicio `nginx` con `build.context: .`, `build.dockerfile: docker/Dockerfile.01-nginx`, `image: nginx-sdd:01`, `environment` con `APP_MESSAGE=${APP_MESSAGE:?definir APP_MESSAGE en .env}`, `ports` según D2 y `restart: unless-stopped`.
 
+- **D7. Limpieza de imágenes.** Tras `docker compose down`, ejecutar `docker rmi nginx-sdd:01 nginx-sdd:test`. Se usan nombres explícitos y no `--rmi local`, porque ese flag no borra imágenes que tienen un tag personalizado (`image:` en compose). Nunca se elimina la imagen base (RF8, P2).
+
+
 ## Archivos permitidos
 | Archivo | Contenido |
 |---|---|
@@ -34,6 +37,8 @@ Ningún otro archivo, salvo aprobación (P5).
 | RF5 | `.env`, compose | T2, T5 | CA5 |
 | RF6 | compose | T5 | CA3 |
 | RF7 | compose | T5 | CA2 |
+| RF8 | comandos de limpieza | T8 | CA9 |
+
 
 ## Consideraciones técnicas
 - El script debe guardarse con saltos de línea LF, no CRLF (P6).
@@ -44,3 +49,4 @@ Ningún otro archivo, salvo aprobación (P5).
 | Fecha | Cambio | Origen (hallazgo/RF) |
 |---|---|---|
 | (fecha) | Versión inicial | — |
+| (fecha) | Añadida D7: limpieza de imágenes | RF8 |

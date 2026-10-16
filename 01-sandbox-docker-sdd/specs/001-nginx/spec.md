@@ -1,6 +1,6 @@
 # 001 – Servidor nginx en Docker
 
-**Versión:** 0.1 · **Estado:** Implementada
+**Versión:** 0.2 · **Estado:** Implementada
 _Estados posibles: Borrador → Aprobada → Implementada → Divergente (si el código se desvió y hay que reconciliar)._
 
 > Este documento está sujeto a `specs/constitution.md` (autoridad superior).
@@ -26,6 +26,9 @@ No incluye: HTTPS, proxy reverso a otros servicios, volúmenes persistentes, CI.
 - **RF6.** nginx escucha en el puerto 80 dentro del contenedor y se publica en el host como `${NGINX_HOST_PORT}` (valor 8080). _(Ver D2 en el plan.)_
 - **RF7.** El contenedor define un `healthcheck` que consulta nginx localmente.
 
+- **RF8.** Al finalizar el flujo, tras validar, se eliminan las imágenes creadas por el proyecto: `nginx-sdd:01` y `nginx-sdd:test`. La imagen base `nginx:1.31.7-alpine3.24` NO se elimina.
+
+
 ## Variables de entorno
 | Variable | Valor en `.env` | Uso | Restricción |
 |---|---|---|---|
@@ -42,6 +45,9 @@ No incluye: HTTPS, proxy reverso a otros servicios, volúmenes persistentes, CI.
 - **CA7.** Imagen fijada: `docker/Dockerfile.01-nginx` contiene una única línea `FROM` y es exactamente `FROM nginx:1.31.7-alpine3.24`; además `docker compose exec nginx nginx -v` reporta la versión `1.31.7`.
 - **CA8.** `docker compose down` detiene y elimina el contenedor sin errores.
 
+
+- **CA9.** Tras la limpieza, `docker image ls nginx-sdd -q` no devuelve nada, y `docker image inspect nginx:1.31.7-alpine3.24` sigue funcionando (la base se conserva).
+
 ## Puntos abiertos
 - Ninguno bloqueante. El tag `nginx:1.31.7-alpine3.24` está confirmado por el usuario.
 - Revisable: D2 (puerto publicado 8080→80 vs. nginx escuchando directamente en 8080 dentro del contenedor).
@@ -51,3 +57,5 @@ No incluye: HTTPS, proxy reverso a otros servicios, volúmenes persistentes, CI.
 |---|---|---|---|---|---|
 | 0.1 | (fecha) | — | Versión inicial | — | usuario |
 | 0.1 | 2026-10-15 | Estado | Estado: Aprobada → Implementada tras verificar CA1–CA8 (T6–T8) | Cierre de T9 (sincronización spec-anchored); sin cambios en RF ni CA | usuario |
+| 0.2 | (fecha) | B | Añadido RF8 y CA9: limpieza de imágenes creadas | Evitar acumular imágenes tras cada ejecución | usuario |
+| 0.2 | 2026-10-15 | Estado | Estado: Aprobada → Implementada tras verificar CA8 y CA9 (T8) y re-verificar la trazabilidad (T9) | Cierre de T9 para la versión 0.2; sin cambios en RF ni CA | usuario |

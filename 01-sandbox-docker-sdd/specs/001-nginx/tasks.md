@@ -48,9 +48,9 @@ Antes de marcar una tarea, confirma:
   Ejecutar los comandos de CA3, CA4, CA5, CA6 y CA7.
   Verificación: los cinco criterios pasan.
 
-- [x] **T8. Limpieza** (CA8)
-  Ejecutar `docker compose down`.
-  Verificación: CA8; `docker compose ps` no lista contenedores.
+- [x] **T8. Limpieza** (CA8, CA9)
+  Ejecutar `docker compose down` y después `docker rmi nginx-sdd:01 nginx-sdd:test`.
+  Verificación: CA8; `docker image ls nginx-sdd -q` no devuelve nada; `docker image inspect nginx:1.31.7-alpine3.24` sigue existiendo.
 
 - [x] **T9. Sincronización spec-anchored**
   Revisar punto por punto la tabla de trazabilidad del plan contra el código real.
@@ -65,3 +65,4 @@ _Registro de lo que se descubre al implementar (flujo código → spec). Una fil
 |---|---|---|---|---|---|
 | H1 | T0 | `AGENTS.md` y `CLAUDE.md` citan `tasks.md`, pero el archivo real se llamaba `task.md` | A | Renombrado `task.md` → `tasks.md`; sin impacto en RF/CA ni en la trazabilidad T0–T9 | Sí (usuario) |
 | H2 | T4, T6 | El build de Docker necesita escribir en `~/.docker/buildx`, fuera del workspace; sin permiso ampliado falla con `read-only file system` | — (entorno) | Ninguna en spec/plan/código: es un problema de entorno, no de diseño. T4/T6 se ejecutaron con permiso ampliado aprobado por el usuario; el tag no se tocó (P2) | Sí (usuario) |
+| H3 | T8, T9 | `spec.md` tenía una línea en blanco dentro de la tabla "Registro de cambios" (la partía en dos y dejaba la fila 0.2 sin cabecera); los tres documentos (`spec.md`, `plan.md`, `tasks.md`) terminaban sin salto de línea final | A | Corregido: tabla unida y salto de línea final añadido a los tres. Sin cambios en RF/CA ni en el contenido de las decisiones | No requiere (clase A) |
