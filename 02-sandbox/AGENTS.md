@@ -2,8 +2,7 @@
 
 ## Reglas obligatorias
 Antes de cualquier tarea, lee `specs/constitution.md`.
-Solo se modifica con aprobación explícita del usuario: nunca la
-edites por iniciativa propia.
+
 
 ## Flujo de trabajo
 1. Lee `specs/constitution.md`.
@@ -32,4 +31,5 @@ antes de ejecutar y pide confirmación.
 Al completar todas las tasks de una feature, lee
 `specs/x-report.md` y escribe el reporte en
 `specs/features/NNN-nombre/z-report.md` siguiendo ese formato.
+
 
