@@ -11,8 +11,7 @@ El servidor permitirá atender solicitudes HTTP y entregar contenido web estáti
 ## 3. Requisitos funcionales
 
 ### RF-01: Atender solicitudes HTTP
-El servidor deberá aceptar solicitudes HTTP a través del puerto publicado por Docker y responder con el contenido correspondiente.
-el dominio sera `test.local`
+El servidor deberá aceptar solicitudes HTTP a través del puerto publicado por Docker, responder al dominio `test.local` y devolver el contenido correspondiente.
 
 ### RF-02: Entregar contenido estático
 El servidor deberá servir los archivos estáticos disponibles en el directorio web configurado.
@@ -39,3 +38,5 @@ El contenedor deberá poder detenerse y reiniciarse siguiendo el procedimiento d
 - CA-02: Una solicitud a un recurso inexistente devuelve HTTP `404 Not Found`.
 - CA-03: El servidor responde correctamente desde el puerto publicado por Docker.
 - CA-04: Los archivos de configuración y contenido persisten después de recrear el contenedor, cuando se utilizan los montajes definidos.
+- CA-05: Una solicitud a `http://test.local:<puerto publicado>/` devuelve HTTP `200 OK` y la página principal esperada.
+- CA-06: El contenedor puede detenerse y reiniciarse con el procedimiento definido y el servicio vuelve a responder.
