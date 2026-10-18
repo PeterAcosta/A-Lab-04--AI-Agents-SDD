@@ -14,18 +14,24 @@ El servidor web se implementará utilizando Nginx dentro de un contenedor Docker
 **Dockerfile:** `./docker/Dockerfile.01-nginx`
 **entrypoint:** `./docker/entrypoint.01-nginx.sh`
 **orquestador:** `./docker-compose.yaml`
-**nombre de la imagen:** `01-nginx`
+**nombre de la imagen resultante:** `01-nginx-image:01`
+**nombre del contenedor resultante:** `01-nginx:01`
 
-**puerto de nginx:** leerlo del archivo `./.env` e inyectar esa variable dentro del contenedor 
+**puerto de nginx:** leerlo del archivo `./.env` e inyectar esa variable dentro del contenedor, al final del proceso el servidor nginx debe escuchar si o si en ese puerto
+
 **variables de entorno dentro del contenedor:** 
 - El Dockerfile define dentro del contenedor una variable `image_name`con el nombre de la imagen utilizada 
 - El Dockerfile define dentro del contenedor una variable `nginx_port` obtenida del archivo `.env`
 **dominio de nginx:** el servidor responde al dominiuo `local.test`
 
-**volumenes docker:** dis, uno a la raiz del sitio `local.test` dentro del contenedor, otro a la configuracion de nginx del dominio antes mensionado.
+**volumenes docker:** dos, uno a la raiz del sitio `local.test` dentro del contenedor, otro a la configuracion de nginx del dominio antes mensionado, asi :
+volumes:
+  - ./docker/local.test/:/usr/share/nginx/html
+  - ./docker/etc--nginx--conf.d/:/etc/nginx/conf.d/
 
 **paginas html5:** se haran dos paginas web estaticas y muy simples en la raiz del sitio `local.test`, una sera el `index.html` y otra sera el `404.html`
 
+**borrar lo que hiciste como auxiliar**: despues de terminar tu trabajo borra las imagenes, contenedores, redes y volumenes que te hayan servido de auxiliar, no toques nada que tu no hayas creado  
 
 
 ## 6. Consideraciones técnicas
