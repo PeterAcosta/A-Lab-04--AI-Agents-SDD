@@ -22,14 +22,14 @@ El servidor web se implementará utilizando Nginx dentro de un contenedor Docker
 **variables de entorno dentro del contenedor:** 
 - El Dockerfile define dentro del contenedor una variable `image_name`con el nombre de la imagen utilizada 
 - El Dockerfile define dentro del contenedor una variable `nginx_port` obtenida del archivo `.env`
-**dominio de nginx:** el servidor responde al dominiuo `local.test`
+**dominio de nginx:** el servidor responde al dominiuo `test.local`
 
-**volumenes docker:** dos, uno a la raiz del sitio `local.test` dentro del contenedor, otro a la configuracion de nginx del dominio antes mensionado, asi :
+**volumenes docker:** dos, uno a la raiz del sitio `test.local` dentro del contenedor, otro a la configuracion de nginx del dominio antes mensionado, asi :
 volumes:
-  - ./docker/local.test/:/usr/share/nginx/html
+  - ./docker/test.local/:/usr/share/nginx/html
   - ./docker/etc--nginx--conf.d/:/etc/nginx/conf.d/
 
-**paginas html5:** se haran dos paginas web estaticas y muy simples en la raiz del sitio `local.test`, una sera el `index.html` y otra sera el `404.html`
+**paginas html5:** se haran dos paginas web estaticas y muy simples en la raiz del sitio `test.local`, una sera el `index.html` y otra sera el `404.html`
 
 **borrar lo que hiciste como auxiliar**: despues de terminar tu trabajo borra las imagenes, contenedores, redes y volumenes que te hayan servido de auxiliar, no toques nada que tu no hayas creado. La imagen y el contenedor finales de la feature deben conservarse  
 

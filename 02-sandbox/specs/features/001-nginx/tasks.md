@@ -20,7 +20,7 @@
 - [ ] Preparar la imagen para su construcción con el nombre `01-nginx-image` y tag `01`.
 
 ### T-03: Preparar la configuración de Nginx
-- [ ] Crear la configuración personalizada para el dominio `local.test`.
+- [ ] Crear la configuración personalizada para el dominio `test.local`.
 - [ ] Definir el directorio raíz del sitio web.
 - [ ] Configurar `index.html` como página principal.
 - [ ] Configurar la respuesta `404 Not Found` para los recursos inexistentes.
@@ -33,7 +33,7 @@
 - [ ] Verificar que el script pueda ejecutarse correctamente al iniciar el contenedor.
 
 ### T-05: Crear el contenido web
-- [ ] Crear el directorio raíz del sitio `local.test`.
+- [ ] Crear el directorio raíz del sitio `test.local`.
 - [ ] Crear `index.html` con una página HTML5 estática, simple y válida.
 - [ ] Crear `404.html` con una página HTML5 estática para los recursos inexistentes.
 
@@ -49,7 +49,7 @@
 - [ ] Verificar que la configuración y el contenido puedan mantenerse al recrear el contenedor.
 
 ### T-07: Verificar el acceso al dominio
-- [ ] Comprobar que el servidor responda al dominio `local.test`.
+- [ ] Comprobar que el servidor responda al dominio `test.local`.
 - [ ] Verificar que el dominio pueda resolverse correctamente desde el host.
 - [ ] Comprobar el acceso al servidor mediante el puerto publicado por Docker.
 
