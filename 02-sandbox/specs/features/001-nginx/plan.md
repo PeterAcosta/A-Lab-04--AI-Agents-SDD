@@ -14,8 +14,8 @@ El servidor web se implementará utilizando Nginx dentro de un contenedor Docker
 **Dockerfile:** `./docker/Dockerfile.01-nginx`
 **entrypoint:** `./docker/entrypoint.01-nginx.sh`
 **orquestador:** `./docker-compose.yaml`
-**nombre de la imagen resultante:** `01-nginx-image:01`
-**nombre del contenedor resultante:** `01-nginx:01`
+**nombre de la imagen resultante:** `01-nginx-image` y tag`01`
+**nombre del contenedor resultante:** `01-nginx`
 
 **puerto de nginx:** leerlo del archivo `./.env` e inyectar esa variable dentro del contenedor, al final del proceso el servidor nginx debe escuchar si o si en ese puerto
 
@@ -31,7 +31,7 @@ volumes:
 
 **paginas html5:** se haran dos paginas web estaticas y muy simples en la raiz del sitio `local.test`, una sera el `index.html` y otra sera el `404.html`
 
-**borrar lo que hiciste como auxiliar**: despues de terminar tu trabajo borra las imagenes, contenedores, redes y volumenes que te hayan servido de auxiliar, no toques nada que tu no hayas creado  
+**borrar lo que hiciste como auxiliar**: despues de terminar tu trabajo borra las imagenes, contenedores, redes y volumenes que te hayan servido de auxiliar, no toques nada que tu no hayas creado. La imagen y el contenedor finales de la feature deben conservarse  
 
 
 ## 6. Consideraciones técnicas

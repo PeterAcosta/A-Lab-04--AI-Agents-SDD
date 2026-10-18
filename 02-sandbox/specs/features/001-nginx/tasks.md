@@ -9,20 +9,17 @@
 ## Tareas
 
 ### T-01: Revisar las especificaciones
-
 - [ ] Leer `constitution.md` y verificar sus principios.
 - [ ] Revisar `spec.md` y `plan.md`.
 - [ ] Comprobar la estructura existente del proyecto y respetar sus convenciones.
 
 ### T-02: Crear el Dockerfile
-
 - [ ] Crear `./docker/Dockerfile.01-nginx`.
 - [ ] Utilizar la imagen base `nginx:1.31.7-alpine3.24`.
 - [ ] Definir las variables de entorno necesarias para identificar la imagen y configurar el puerto de Nginx.
-- [ ] Preparar la imagen para su construcción con el nombre `01-nginx`.
+- [ ] Preparar la imagen para su construcción con el nombre `01-nginx` y tag `01`.
 
 ### T-03: Preparar la configuración de Nginx
-
 - [ ] Crear la configuración personalizada para el dominio `local.test`.
 - [ ] Definir el directorio raíz del sitio web.
 - [ ] Configurar `index.html` como página principal.
@@ -30,20 +27,17 @@
 - [ ] Preparar la configuración para utilizar el puerto definido mediante las variables de entorno.
 
 ### T-04: Crear el entrypoint
-
 - [ ] Crear `./docker/entrypoint.01-nginx.sh`.
 - [ ] Preparar la configuración de Nginx utilizando las variables de entorno necesarias.
 - [ ] Garantizar que Nginx se ejecute en primer plano dentro del contenedor.
 - [ ] Verificar que el script pueda ejecutarse correctamente al iniciar el contenedor.
 
 ### T-05: Crear el contenido web
-
 - [ ] Crear el directorio raíz del sitio `local.test`.
 - [ ] Crear `index.html` con una página HTML5 estática, simple y válida.
 - [ ] Crear `404.html` con una página HTML5 estática para los recursos inexistentes.
 
 ### T-06: Configurar Docker Compose
-
 - [ ] Crear o actualizar `./docker-compose.yaml`.
 - [ ] Definir la construcción de la imagen utilizando `./docker/Dockerfile.01-nginx`.
 - [ ] Asignar a la imagen construida el nombre `01-nginx`.
@@ -55,7 +49,6 @@
 - [ ] Verificar que la configuración y el contenido puedan mantenerse al recrear el contenedor.
 
 ### T-07: Verificar el acceso al dominio
-
 - [ ] Comprobar que el servidor responda al dominio `local.test`.
 - [ ] Verificar que el dominio pueda resolverse correctamente desde el host.
 - [ ] Comprobar el acceso al servidor mediante el puerto publicado por Docker.

@@ -12,6 +12,7 @@ El servidor permitirá atender solicitudes HTTP y entregar contenido web estáti
 
 ### RF-01: Atender solicitudes HTTP
 El servidor deberá aceptar solicitudes HTTP a través del puerto publicado por Docker y responder con el contenido correspondiente.
+el dominio sera `local.test`
 
 ### RF-02: Entregar contenido estático
 El servidor deberá servir los archivos estáticos disponibles en el directorio web configurado.
