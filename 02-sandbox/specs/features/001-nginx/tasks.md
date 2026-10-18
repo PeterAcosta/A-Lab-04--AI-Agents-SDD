@@ -17,7 +17,7 @@
 - [ ] Crear `./docker/Dockerfile.01-nginx`.
 - [ ] Utilizar la imagen base `nginx:1.31.7-alpine3.24`.
 - [ ] Definir las variables de entorno necesarias para identificar la imagen y configurar el puerto de Nginx.
-- [ ] Preparar la imagen para su construcción con el nombre `01-nginx` y tag `01`.
+- [ ] Preparar la imagen para su construcción con el nombre `01-nginx-image` y tag `01`.
 
 ### T-03: Preparar la configuración de Nginx
 - [ ] Crear la configuración personalizada para el dominio `local.test`.
