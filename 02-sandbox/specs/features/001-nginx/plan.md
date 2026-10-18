@@ -20,7 +20,7 @@ El servidor web se implementará utilizando Nginx dentro de un contenedor Docker
 **puerto de nginx:** leerlo del archivo `./.env` e inyectar esa variable dentro del contenedor, al final del proceso el servidor nginx debe escuchar si o si en ese puerto
 
 **variables de entorno dentro del contenedor:** 
-- El Dockerfile define dentro del contenedor una variable `image_name`con el nombre de la imagen utilizada 
+- El Dockerfile define dentro del contenedor una variable `image_name`con el nombre de la imagen base utilizada 
 - El Dockerfile define dentro del contenedor una variable `nginx_port` obtenida del archivo `.env`
 **dominio de nginx:** el servidor responde al dominiuo `test.local`
 
