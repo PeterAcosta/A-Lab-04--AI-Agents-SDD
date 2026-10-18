@@ -1,0 +1,11 @@
+FROM nginx:1.31.7-alpine3.24
+
+ARG NGINX_PORT
+ENV image_name="nginx:1.31.7-alpine3.24" \
+    nginx_port="${NGINX_PORT}"
+
+COPY docker/entrypoint.01-nginx.sh /usr/local/bin/entrypoint.01-nginx.sh
+RUN chmod +x /usr/local/bin/entrypoint.01-nginx.sh
+
+ENTRYPOINT ["/usr/local/bin/entrypoint.01-nginx.sh"]
+CMD ["nginx", "-g", "daemon off;"]

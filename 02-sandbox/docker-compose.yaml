@@ -1,0 +1,16 @@
+services:
+  nginx:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.01-nginx
+      args:
+        NGINX_PORT: "${NGINX_HOST_PORT:?definir NGINX_HOST_PORT en .env}"
+    image: "01-nginx-image:01"
+    container_name: 01-nginx
+    environment:
+      nginx_port: "${NGINX_HOST_PORT:?definir NGINX_HOST_PORT en .env}"
+    ports:
+      - "${NGINX_HOST_PORT}:${NGINX_HOST_PORT}"
+    volumes:
+      - ./docker/test.local/:/usr/share/nginx/html
+      - ./docker/etc--nginx--conf.d/:/etc/nginx/conf.d/
