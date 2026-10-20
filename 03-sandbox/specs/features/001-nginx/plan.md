@@ -13,7 +13,7 @@ La implementación debe cumplir la especificación y respetar la constitución d
 
 Construir una imagen propia a partir de la imagen oficial `nginx:1.28.0-bookworm`, con `logrotate` y `cron` instalados mediante `apt`. Docker Compose construye la imagen, publica el puerto de `.env`, monta los tres volúmenes e inyecta `APP_MESSAGE`.
 
-El entrypoint del proyecto prepara los archivos de ejecución, arranca `cron` y delega en el entrypoint oficial de la imagen para conservar su comportamiento. Nginx sirve el sitio estático y las páginas de error personalizadas; `logrotate` rota los logs escritos en el volumen.
+El entrypoint del proyecto prepara los archivos de ejecución, arranca `cron` y delega en el entrypoint oficial de la imagen para conservar su comportamiento. Nginx sirve el sitio estático y las páginas de error personalizadas; `logrotate` rota los logs escritos en el volumen. Docker Compose limita además los logs de stdout/stderr con el driver `json-file` (tamaño y número de archivos), y la tarea de rotación escribe su salida en el volumen de logs.
 
 ## 3. Arquitectura y estructura
 
@@ -29,7 +29,7 @@ El entrypoint del proyecto prepara los archivos de ejecución, arranca `cron` y 
 │   └── cron.01-nginx
 ├── vol-01-nginx-conf.d/
 │   └── test.local.conf
-├── vol-01-nginx-logs/          # generado en tiempo de ejecución
+├── vol-01-nginx-logs/          # generado: logs, rotados y logrotate-cron.log
 └── vol-01-nginx-web/
     ├── index.html
     ├── 404.html
@@ -39,7 +39,7 @@ El entrypoint del proyecto prepara los archivos de ejecución, arranca `cron` y 
 
 ### Responsabilidades
 
-- `docker-compose.yaml`: construye la imagen, publica `${NGINX_HOST_PORT}:80`, monta los volúmenes e inyecta `APP_MESSAGE`.
+- `docker-compose.yaml`: construye la imagen, publica `${NGINX_HOST_PORT}:80`, monta los volúmenes, inyecta `APP_MESSAGE` y configura el driver de logs con límites.
 - `docker/Dockerfile.01-nginx`: parte de la imagen oficial, instala `logrotate` y `cron`, copia configuraciones y declara el entrypoint y el comando.
 - `docker/entrypoint.01-nginx.sh`: valida `APP_MESSAGE`, genera `message.html`, arranca `cron` y ejecuta el entrypoint oficial con el comando del contenedor.
 - `docker/logrotate.01-nginx.conf`: reglas de rotación de `/var/log/nginx/*.log`.
@@ -130,7 +130,9 @@ Se instala `docker/logrotate.01-nginx.conf` como `/etc/logrotate.d/nginx`:
 }
 ```
 
-`docker/cron.01-nginx` se instala como `/etc/cron.d/nginx-logrotate` con permisos `0644` y ejecuta `logrotate` a diario. El entrypoint arranca `cron`. La rotación forzada con `logrotate -f` se usa en la verificación de CA-08.
+`docker/cron.01-nginx` se instala como `/etc/cron.d/nginx-logrotate` con permisos `0644` y ejecuta `logrotate` cada hora (`17 * * * *`), redirigiendo su salida a `/var/log/nginx/logrotate-cron.log` (`>> ... 2>&1`). Ese archivo queda cubierto por el patrón `*.log` y se rota con los demás. El entrypoint arranca `cron`. La rotación forzada con `logrotate -f` se usa en la verificación de CA-08 y CA-11.
+
+El cron horario hace que `maxsize 10M` se evalúe cada hora; un pico de tráfico no puede dejar un log de Nginx creciendo durante 24 horas. El límite aproximado de Nginx es 7 × 10 MB, con los archivos antiguos comprimidos.
 
 ### DT-08: Nombre de imagen y servicio
 
@@ -145,10 +147,30 @@ Compose usa el servicio `nginx`, el contenedor `03-nginx` y la imagen `03-nginx-
 - Verificación: `docker compose ps`, `curl -i http://test.local:8080/`, `curl -i http://test.local:8080/no-existe`, `curl -i http://test.local:8080/__verificacion/500`.
 - Cambio de puerto y de `APP_MESSAGE` con reinicio.
 - Rotación forzada de logs y ubicación del volumen.
+- Ubicación y límites de logs: Nginx en `./vol-01-nginx-logs/`, salida de cron en `logrotate-cron.log` y stdout/stderr con `json-file` `10m` × `3`.
 - Parada y eliminación: `docker compose stop` y `docker compose down`.
-- Nota sobre `message.html` generado y sobre los logs fuera de `docker compose logs`.
+- Nota sobre `message.html` generado.
+- Los logs del daemon de Docker y del sistema operativo host quedan fuera de alcance.
 
 No se documentan ni copian secretos; los valores ficticios de `.env` son la única fuente de configuración.
+
+### DT-10: Logs del contenedor
+
+Compose configura el driver `json-file` con límites explícitos:
+
+```yaml
+logging:
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+```
+
+Esto acota la salida de stdout/stderr a unos 30 MB. El host ya usa `json-file`; la configuración del servicio evita depender del valor por defecto del daemon y no modifica el host.
+
+La salida de la tarea de rotación se redirige a `/var/log/nginx/logrotate-cron.log`, que se rota con el resto. `logrotate` no cubre los archivos `*-json.log` de Docker; esos quedan acotados por `max-size`/`max-file`. Los logs del daemon de Docker y del sistema operativo host quedan fuera del alcance del proyecto.
+
+Un contenedor detenido conserva sus logs acotados; `docker compose down` elimina el contenedor y sus archivos de log. `docker compose logs` sigue funcionando porque lee el mismo driver `json-file`.
 
 ## 5. Estrategia de implementación
 
@@ -176,6 +198,8 @@ Las pruebas se ejecutan desde la raíz del proyecto y se registran con el comand
 - `docker compose stop` y `docker compose start` → **CA-05**: el sitio vuelve a responder.
 - Generar una solicitud, ejecutar `docker compose exec nginx logrotate -f /etc/logrotate.d/nginx` y comprobar el archivo rotado en `./vol-01-nginx-logs/` sin perder el servicio → **CA-08**.
 - Cambiar `NGINX_HOST_PORT` en `.env` (por ejemplo a `8081`), ejecutar `docker compose up -d`, comprobar `http://test.local:8081/` y restaurar el valor original → **CA-09**.
+- `docker inspect --format '{{json .HostConfig.LogConfig}}' 03-nginx` → **CA-10**: driver `json-file` con `max-size` `10m` y `max-file` `3`; `docker compose logs --tail=20` sigue mostrando la salida del contenedor.
+- Ejecutar la tarea de rotación con `docker compose exec nginx sh -c '/usr/sbin/logrotate /etc/logrotate.d/nginx >> /var/log/nginx/logrotate-cron.log 2>&1'` y comprobar `./vol-01-nginx-logs/logrotate-cron.log`; verificar que el patrón de rotación cubre `*.log` → **CA-11**.
 - `docker compose exec nginx nginx -t` → configuración válida; soporte de CA-02, CA-06 y CA-07.
 
 Cada criterio de aceptación debe quedar cubierto por al menos una prueba registrada. Los resultados se reflejan en `tasks.md` y, al final, en `z-report.md`.
@@ -185,8 +209,10 @@ Cada criterio de aceptación debe quedar cubierto por al menos una prueba regist
 - **Puerto ocupado:** cambiar `NGINX_HOST_PORT` en `.env` antes del arranque.
 - **`APP_MESSAGE` con HTML:** el entrypoint escapa `&`, `<` y `>`; se documenta que el valor es texto.
 - **`default.conf` oculto:** la configuración montada es autosuficiente y se valida con `nginx -t`.
-- **Logs fuera de `docker compose logs`:** consecuencia del montaje; se documenta y se consulta el volumen.
-- **`logrotate`/`cron` en el contenedor:** `cron` se arranca en el entrypoint y la rotación se prueba de forma forzada.
+- **Logs de Nginx fuera de `docker compose logs`:** los access/error van al volumen; stdout/stderr sí aparecen en `docker compose logs`.
+- **Logs del contenedor sin límite:** se configuran `json-file` con `max-size` y `max-file`; los logs del daemon de Docker y del host quedan fuera del alcance.
+- **`cron` sin syslog:** sus mensajes internos no se persisten; la salida de la tarea de rotación sí se redirige a `logrotate-cron.log`.
+- **`logrotate`/`cron` en el contenedor:** `cron` se arranca en el entrypoint, se ejecuta cada hora y la rotación se prueba de forma forzada.
 - **Etiqueta de imagen:** `nginx:1.28.0-bookworm` está fijada; la descarga no se ha ejecutado todavía y se comprobará en la implementación.
 - **SSI:** el módulo está incluido en la imagen oficial; se comprueba con `nginx -t` y con la respuesta HTTP.
 - **Permisos de volúmenes:** los archivos generados por el entrypoint se crean como `root`; el README indica cómo consultarlos.

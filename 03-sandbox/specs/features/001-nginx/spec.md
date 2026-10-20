@@ -13,6 +13,7 @@ La implementación incluye:
 - Acceso al sitio mediante HTTP desde el host.
 - Configuración reproducible del entorno mediante archivos del proyecto.
 - Rotación de logs dentro del contenedor mediante `logrotate`.
+- Acotar el tamaño de los logs generados por el contenedor.
 
 Quedan fuera del alcance:
 
@@ -20,6 +21,7 @@ Quedan fuera del alcance:
 - Dominios personalizados.
 - Aplicaciones dinámicas y bases de datos.
 - Balanceo de carga y múltiples réplicas.
+- Logs del daemon de Docker y del sistema operativo host.
 
 ## 3. Estructura
 
@@ -33,7 +35,7 @@ Quedan fuera del alcance:
 Volúmenes entre el contenedor y el host:
 
 - `./vol-01-nginx-conf.d/` → `/etc/nginx/conf.d/`: configuración de sitios; contiene `test.local.conf`.
-- `./vol-01-nginx-logs/` → `/var/log/nginx/`: logs de Nginx, rotados por `logrotate`.
+- `./vol-01-nginx-logs/` → `/var/log/nginx/`: logs de Nginx y salida de la tarea de rotación, rotados por `logrotate`.
 - `./vol-01-nginx-web/` → `/var/www/x-site/`: document root.
 
 El montaje de `./vol-01-nginx-conf.d/` oculta el `default.conf` de la imagen; `test.local.conf` debe ser autosuficiente.
@@ -88,7 +90,11 @@ El contenedor debe poder detenerse y volver a iniciarse mediante los mecanismos 
 
 ### RF-07: Rotar logs
 
-El contenedor debe instalar `logrotate` y ejecutarlo periódicamente para rotar los archivos de `/var/log/nginx/`, limitando el espacio ocupado y conservando un historial acotado de logs.
+El contenedor debe instalar `logrotate` y ejecutarlo periódicamente para rotar los archivos de `/var/log/nginx/`, limitando el espacio ocupado y conservando un historial acotado de logs. La salida de la tarea de rotación debe registrarse en un archivo dentro del volumen de logs y quedar sujeta a la misma rotación.
+
+### RF-08: Acotar logs del contenedor
+
+Los logs que el contenedor escribe en stdout/stderr deben quedar limitados por el driver de Docker configurado en `docker-compose.yaml`, con un tamaño máximo y un número máximo de archivos.
 
 ## 5. Requisitos no funcionales
 
@@ -153,6 +159,14 @@ Dado que se generaron logs en `/var/log/nginx/`, cuando se ejecute `logrotate -f
 
 Dado que se modifica `NGINX_HOST_PORT` en `.env`, cuando se ejecute `docker compose up -d`, entonces el nuevo puerto debe quedar publicado y responder a las solicitudes HTTP.
 
+### CA-10: Logs del contenedor acotados
+
+Dado que el contenedor está en ejecución, cuando se inspeccione su configuración con `docker inspect`, entonces el driver de logs debe ser `json-file` y debe incluir los límites `max-size` y `max-file` declarados en `docker-compose.yaml`; `docker compose logs` debe seguir mostrando la salida del contenedor.
+
+### CA-11: Registro de la rotación
+
+Dado que se ejecuta la tarea de rotación, entonces su salida debe quedar registrada en `/var/log/nginx/logrotate-cron.log` y el archivo debe estar cubierto por el patrón de rotación.
+
 ## 8. Verificación
 
 La implementación se considerará terminada cuando se hayan comprobado los criterios de aceptación mediante pruebas reproducibles.
@@ -167,6 +181,8 @@ Como mínimo, se debe verificar:
 - La página `500` personalizada.
 - La actualización de `index.html` y el reinicio del servicio.
 - La rotación forzada de logs.
+- El registro de la tarea de rotación.
+- La configuración de límites de logs del contenedor.
 
 Los resultados deben quedar registrados con los comandos ejecutados y sus salidas.
 
